@@ -1,6 +1,7 @@
 #include "PlayerCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "UObject/ConstructorHelpers.h"
 
 // Sets default values
@@ -9,6 +10,15 @@ APlayerCharacter::APlayerCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
+	
+	
+	// Character
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	
+	GetCharacterMovement() -> bOrientRotationToMovement = true;
+	GetCharacterMovement() -> RotationRate = FRotator(0.0f, 400.0f, 0.0f);
 	
 	// Setting the skeletal mesh
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshFinder (TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple"));
@@ -24,7 +34,7 @@ APlayerCharacter::APlayerCharacter()
 	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(FName("CameraSpringArm"));
 	CameraSpringArm -> SetupAttachment(RootComponent);
 	
-	CameraSpringArm -> TargetArmLength = 300.0f;
+	CameraSpringArm -> TargetArmLength = 400.0f;
 	CameraSpringArm -> bUsePawnControlRotation = true;
 	
 	CameraSpringArm->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
@@ -81,10 +91,17 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 // INPUT
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
-	const FVector2D MovementVector = Value.Get<FVector2D>();
+	FVector2D LookingVector = Value.Get<FVector2D>();
+	const FRotator ControllerRotation = GetControlRotation();
 	
-	AddMovementInput(GetActorForwardVector(), MovementVector.Y);
-	AddMovementInput(GetActorRightVector(), MovementVector.X);
+	const FRotator YawRotation = FRotator(0.f, ControllerRotation.Yaw, 0.f);
+	
+	const FVector ForwardVector = YawRotation.RotateVector(FVector::ForwardVector);
+	const FVector RightVector = YawRotation.RotateVector(FVector::RightVector);
+	
+	AddMovementInput(ForwardVector, LookingVector.Y);
+	AddMovementInput(RightVector, LookingVector.X);
+
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
@@ -92,6 +109,6 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	FVector2D LookingVector = Value.Get<FVector2D>();
 	
 	AddControllerYawInput(LookingVector.X);
-	AddControllerPitchInput(LookingVector.Y);	
+	AddControllerPitchInput(LookingVector.Y);
 }
 
