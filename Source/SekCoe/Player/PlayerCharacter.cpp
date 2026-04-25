@@ -20,15 +20,18 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement() -> bOrientRotationToMovement = true;
 	GetCharacterMovement() -> RotationRate = FRotator(0.0f, 400.0f, 0.0f);
 	
-	// Setting the skeletal mesh
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshFinder (TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple"));
+	// Skeletal mesh
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshFinder (TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple"));
 	if (SkeletalMeshFinder.Succeeded())
-	{
 		GetMesh()->SetSkeletalMesh(SkeletalMeshFinder.Object);
-	}
 	
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	
+	// Animations
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimationBPFinder(TEXT("/Game/Player/ABP_Player"));
+	if (AnimationBPFinder.Succeeded())
+		GetMesh()->SetAnimInstanceClass(AnimationBPFinder.Class);
 	
 	// Camera Spring Arm
 	CameraSpringArm = CreateDefaultSubobject<USpringArmComponent>(FName("CameraSpringArm"));
