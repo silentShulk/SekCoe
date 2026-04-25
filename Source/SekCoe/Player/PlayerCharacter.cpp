@@ -13,6 +13,8 @@ APlayerCharacter::APlayerCharacter()
 	
 	
 	// Character
+	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
